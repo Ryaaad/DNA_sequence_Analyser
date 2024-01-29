@@ -1,5 +1,5 @@
 from random import randint
-from utils import read_FASTA_strings
+from utils import read_FASTA_strings,save_to_file
 
 def randomADN(leng):
     Seq=''

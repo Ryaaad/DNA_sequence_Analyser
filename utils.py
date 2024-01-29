@@ -17,6 +17,15 @@ def read_FASTA_strings(filename):
  with open(filename) as file:
   return (file.read()).split('>')
 
+def save_to_file(results, filename="resultat.txt"):
+    try:
+        with open(filename, "w") as file:
+            for result in results:
+                file.write(result)
+        print(f"Résultats enregistrés avec succès dans {filename}.")
+    except Exception as e:
+        print(f"Error saving results to {filename}: {e}")
+
 def ReadInput(stdscr,text,pos=1):
   key=''
   input=''
@@ -31,4 +40,11 @@ def ReadInput(stdscr,text,pos=1):
    stdscr.clear()
    stdscr.refresh()
   return input
-                
+def save_matrix_to_file(matrix, filename="resultat.txt"):
+    try:
+        with open(filename, "w") as file:
+            for row in matrix:
+                file.write(" ".join(map(str, row)) + "\n")
+        print(f"Matrix saved to {filename} successfully.")
+    except Exception as e:
+        print(f"Error saving matrix to {filename}: {e}")

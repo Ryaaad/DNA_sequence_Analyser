@@ -1,7 +1,7 @@
 import curses
 import Functions
 import utils
-def FileMenu(stdscr,ADNseq):
+def FileMenu(stdscr,ADNseq,ARNseq):
     x = 1
     keychosen=1
     key = ''
@@ -45,8 +45,8 @@ def FileMenu(stdscr,ADNseq):
            stdscr.addstr(f'Adénine : {dictOcc["Adénine"]} Thymine : {dictOcc["Thymine"]} Cytosine : {dictOcc["Cytosine"]} Guanine : {dictOcc["Guanine"]}')
            stdscr.getch()
      if keychosen==3:
-           Arn=Functions.Adn_to_Arn(ADNseq)   
-           stdscr.addstr(f'la chaine ARN : {Arn} ADN : {ADNseq}')
+           ARNseq=Functions.Adn_to_Arn(ADNseq)   
+           stdscr.addstr(f'la chaine ARN : {ARNseq} ADN : {ADNseq}')
            stdscr.getch()
      if keychosen==4:
            AdnC=Functions.Adn_complementary(ADNseq)
@@ -79,8 +79,9 @@ def FileMenu(stdscr,ADNseq):
             key='q'
           else :
             stdscr.addstr('La chaine motif est pas une chaine ADN')
+     return ARNseq
 
-def NonFileMenu(stdscr,ADNseq):
+def NonFileMenu(stdscr,ADNseq,ARNseq):
     x = 1
     keychosen=1
     height, width = stdscr.getmaxyx()
@@ -114,9 +115,8 @@ def NonFileMenu(stdscr,ADNseq):
            stdscr.addstr(f'Adénine : {dictOcc["Adénine"]} Thymine : {dictOcc["Thymine"]} Cytosine : {dictOcc["Cytosine"]} Guanine : {dictOcc["Guanine"]}')
            stdscr.getch()
      if keychosen==2:
-           Arn=Functions.Adn_to_Arn(ADNseq)   
-           ArnMenu(stdscr,Arn)
-           stdscr.getch()
+           ARNseq=Functions.Adn_to_Arn(ADNseq)   
+           ArnMenu(stdscr,ARNseq)
      if keychosen==3:
            AdnC=Functions.Adn_complementary(ADNseq)
            stdscr.addstr(f'la chaine Complemantaire de : {ADNseq} est : {AdnC}')
@@ -149,7 +149,7 @@ def NonFileMenu(stdscr,ADNseq):
             key='q'
           else :
             stdscr.addstr('La chaine motif est pas une chaine ADN')
-
+    return ARNseq
 def ArnMenu(stdscr,ArnSeq):
     height, width = stdscr.getmaxyx()
     text="Opperation"
@@ -159,20 +159,48 @@ def ArnMenu(stdscr,ArnSeq):
         stdscr.clear()
         stdscr.addstr(f'chain Arn: {ArnSeq}',curses.A_BOLD)
         stdscr.addstr(2, col, text,curses.A_BOLD | curses.A_UNDERLINE)
-        stdscr.addstr(3, 1, "Transcrire la chaîne ARN en PROTIEN ? ", curses.A_BOLD | curses.A_UNDERLINE | curses.color_pair(1))
+        stdscr.addstr(3, 1, "Transcrire la chaîne ARN en PROTIEN ? ", curses.A_BOLD | curses.A_UNDERLINE | curses.color_pair(3))
         utils.statusbar(stdscr) # to show the footbar
         key = stdscr.getkey()
-    if key!='q':
-     stdscr.clear()
-     stdscr.refresh()
-     if key== '\n':
+   
+    if key== '\n':
+           stdscr.clear()
+           stdscr.refresh()
            Protien=Functions.Arn_to_Protein(ArnSeq)
            stdscr.addstr(f'Protein : {Protien}')
            stdscr.getch()
+           stdscr.clear()
+           stdscr.refresh()
+
+def CreatingFileMenu(stdscr):
+    height, width = stdscr.getmaxyx()
+    text="Veux-tu enregistrer les résultats dans un Fichier ?"
+    col = (width - len(text)) // 2
+    key = ''
+    x=1
+    keychosen=1
+    while key != '\n':
+        stdscr.clear()
+        stdscr.addstr(1, col, text,curses.A_BOLD)
+        stdscr.addstr(3, 1, "Oui",curses.color_pair(1) if x==1 else curses.A_BOLD)
+        stdscr.addstr(4, 1, "Non",curses.color_pair(1) if x==2 else curses.A_BOLD)
+        key = stdscr.getkey()
+        if key == 'KEY_DOWN' and x<2:
+            x += 1
+            keychosen=x
+        elif key == 'KEY_UP' and x>1:
+            x -= 1
+            keychosen=x
+    stdscr.clear()
+    stdscr.refresh()
+    return keychosen
+             
    
-def MainMenu(stdscr):
+      
+def MainMenu(stdscr,ADNseq,ARNseq):
     x = 1
     keychosen=1
+    Matrice=[]
     height, width = stdscr.getmaxyx()
     text="Choisi l'opperation"
     col = (width - len(text)) // 2
@@ -198,19 +226,18 @@ def MainMenu(stdscr):
     stdscr.refresh()
     if key!='q':
      if keychosen==1 : 
-        ADNseq=''
         while True:
          try:
           path=utils.ReadInput(stdscr,"Enter file path :")
           f=open(path)
+          break
          except FileNotFoundError:
           stdscr.addstr(height-1, 1, 'File not found',curses.A_BOLD | curses.color_pair(4) | curses.A_BLINK)
           stdscr.addstr(0, 1, '')
           stdscr.refresh() 
-          break
-        
+
         ADNseq=Functions.ADNseq_From_File(path)
-        FileMenu(stdscr,ADNseq=ADNseq)
+        ARNseq=FileMenu(stdscr,ADNseq=ADNseq,ARNseq=ARNseq)
      elif keychosen==2 :   
         stdscr.addstr("Enter seq length : ")
         key = ''
@@ -219,13 +246,13 @@ def MainMenu(stdscr):
             key=stdscr.getkey()
             if key=="KEY_BACKSPACE":
                number=utils.deleteChar(number) 
-            if ord('0') <= ord(key) <= ord('9') : #check if the key is number with code ascii
+            if ord('0') <= ord(key) <= ord('9') : # check if the key is number with code ascii
              number=number+key
             stdscr.addstr(key)
             stdscr.refresh()
 
         ADNseq=Functions.randomADN(int(number))
-        NonFileMenu(stdscr,ADNseq)
+        ARNseq=NonFileMenu(stdscr,ADNseq,ARNseq)
      elif keychosen==3:
         while True  :  
          try:
@@ -237,13 +264,15 @@ def MainMenu(stdscr):
           stdscr.addstr(0, 1, '')
           stdscr.refresh() 
         Matseq=Functions.matrice_profil(path)
+        Matrice=Matseq
         stdscr.addstr(3,30,f"{Matseq[0][0]}",curses.A_BOLD)
         stdscr.addstr(3,60,f"{Matseq[0][1]}",curses.A_BOLD)
         stdscr.addstr(3,90,f"{Matseq[0][2]}",curses.A_BOLD)
         stdscr.addstr(3,120,f"{Matseq[0][3]}",curses.A_BOLD)
+
         for i in range(1,len(Matseq)):
            for j in range(0,len(Matseq[1])):
             stdscr.addstr(j+5,i*30+2,f"{Matseq[i][j]}",curses.A_BOLD)
 
         stdscr.getch()
-     stdscr.refresh()
+    return [ADNseq,ARNseq,Matrice]
