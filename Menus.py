@@ -6,7 +6,7 @@ def FileMenu(stdscr,ADNseq):
     keychosen=1
     key = ''
     height, width = stdscr.getmaxyx()
-    text="Choisi l'opperation"
+    text="Opperation"
     col = (width - len(text)) // 2
     while key != '\n' and key!='q':
         stdscr.clear()
@@ -84,7 +84,7 @@ def NonFileMenu(stdscr,ADNseq):
     x = 1
     keychosen=1
     height, width = stdscr.getmaxyx()
-    text="Choisi l'opperation a appliquer"
+    text="Opperation"
     col = (width - len(text)) // 2
     key = ''
     while key != '\n' and key!='q':
@@ -98,7 +98,7 @@ def NonFileMenu(stdscr,ADNseq):
         stdscr.addstr(8, 1, "Calculer les fréquences de codons dans l'ADN.", curses.A_BOLD | curses.A_UNDERLINE | curses.color_pair(1) if x == 5 else curses.color_pair(2))
         stdscr.addstr(9, 1, "Réaliser des mutations aléatoires sur l'ADN ", curses.A_BOLD | curses.A_UNDERLINE | curses.color_pair(1) if x == 6 else curses.color_pair(2))
         stdscr.addstr(10, 1, "Chercher un motif dans la chaîne ADN ", curses.A_BOLD | curses.A_UNDERLINE | curses.color_pair(1) if x == 7 else curses.color_pair(2))
-       
+        utils.statusbar(stdscr) # to show the footbar
         key = stdscr.getkey()
         if key == 'KEY_DOWN' and x<7:
             x += 1
@@ -115,7 +115,7 @@ def NonFileMenu(stdscr,ADNseq):
            stdscr.getch()
      if keychosen==2:
            Arn=Functions.Adn_to_Arn(ADNseq)   
-           stdscr.addstr(f'la chaine ARN : {Arn} ADN : {ADNseq}')
+           ArnMenu(stdscr,Arn)
            stdscr.getch()
      if keychosen==3:
            AdnC=Functions.Adn_complementary(ADNseq)
@@ -150,6 +150,26 @@ def NonFileMenu(stdscr,ADNseq):
           else :
             stdscr.addstr('La chaine motif est pas une chaine ADN')
 
+def ArnMenu(stdscr,ArnSeq):
+    height, width = stdscr.getmaxyx()
+    text="Opperation"
+    col = (width - len(text)) // 2
+    key = ''
+    while key != '\n' and key!='q':
+        stdscr.clear()
+        stdscr.addstr(f'chain Arn: {ArnSeq}',curses.A_BOLD)
+        stdscr.addstr(2, col, text,curses.A_BOLD | curses.A_UNDERLINE)
+        stdscr.addstr(3, 1, "Transcrire la chaîne ARN en PROTIEN ? ", curses.A_BOLD | curses.A_UNDERLINE | curses.color_pair(1))
+        utils.statusbar(stdscr) # to show the footbar
+        key = stdscr.getkey()
+    if key!='q':
+     stdscr.clear()
+     stdscr.refresh()
+     if key== '\n':
+           Protien=Functions.Arn_to_Protein(ArnSeq)
+           stdscr.addstr(f'Protein : {Protien}')
+           stdscr.getch()
+   
 def MainMenu(stdscr):
     x = 1
     keychosen=1
@@ -163,11 +183,12 @@ def MainMenu(stdscr):
         stdscr.clear()
         stdscr.addstr(1, col, text,curses.A_BOLD | curses.color_pair(4))
         stdscr.addstr(2,colunderline,underline,curses.color_pair(4))
-        stdscr.addstr(3, 1, "choisir une chaîne ADN à partir d’un fichier", curses.A_BOLD | curses.A_UNDERLINE | curses.color_pair(3) if x== 1 else curses.color_pair(2))
-        stdscr.addstr(4, 1, "générer une chaîne ADN aléatoire", curses.A_BOLD | curses.A_UNDERLINE | curses.color_pair(3) if x == 2 else curses.color_pair(2))
+        stdscr.addstr(3, 1, "choisir une chaîne ADN à partir d’un fichier", curses.color_pair(3) if x== 1 else curses.color_pair(2))
+        stdscr.addstr(4, 1, "générer une chaîne ADN aléatoire", curses.color_pair(3) if x == 2 else curses.color_pair(2))
+        stdscr.addstr(5,1,"Générer la chaîne ADN consensus et la matrice profil ",curses.color_pair(3) if x == 3 else curses.color_pair(2))
         utils.statusbar(stdscr) # to show the footbar
         key = stdscr.getkey() # Read key from user
-        if key == 'KEY_DOWN' and x<2:
+        if key == 'KEY_DOWN' and x<3:
             x += 1
             keychosen=x
         elif key == 'KEY_UP' and x>1:
@@ -196,4 +217,8 @@ def MainMenu(stdscr):
 
         ADNseq=Functions.randomADN(int(number))
         NonFileMenu(stdscr,ADNseq)
-    stdscr.refresh()
+     elif keychosen==3:
+        path=utils.ReadInput(stdscr,"Enter path of the File with Fasta Format :")
+        Matseq=Functions.ADNseq_From_File(path)
+        stdscr.addstr(f"{Matseq}")
+     stdscr.refresh()

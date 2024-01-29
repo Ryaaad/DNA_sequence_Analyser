@@ -1,4 +1,5 @@
 from random import randint
+from utils import read_FASTA_strings
 
 def randomADN(leng):
     Seq=''
@@ -141,57 +142,75 @@ def fréquences_codons(seq):
 
 def Arn_to_Protein(seq) :
    Protein=''
+   codon_to_protein = {
+    'UUU': 'Phe', 'UUC': 'Phe',
+    'UCU': 'Ser', 'UCC': 'Ser', 'UCA': 'Ser', 'UCG': 'Ser',
+    'UAU': 'Tyr', 'UAC': 'Tyr',
+    'UGU': 'Cys', 'UGC': 'Cys',
+    'UUA': 'Leu', 'UUG': 'Leu', 'CUU': 'Leu', 'CUC': 'Leu', 'CUA': 'Leu', 'CUG': 'Leu',
+    'UAA': '---', 'UGA': '---', 'UAG': '---',
+    'UGG': 'Trp',
+    'CCU': 'Pro', 'CCC': 'Pro', 'CCA': 'Pro', 'CCG': 'Pro',
+    'CAU': 'His', 'CAC': 'His',
+    'CGU': 'Arg', 'CGC': 'Arg', 'CGA': 'Arg', 'CGG': 'Arg',
+    'CAA': 'Gln', 'CAG': 'Gln',
+    'AUU': 'Ile', 'AUC': 'Ile', 'AUA': 'Ile',
+    'ACU': 'Thr', 'ACC': 'Thr', 'ACA': 'Thr',
+    'AAU': 'Asn', 'AAC': 'Asn',
+    'AGU': 'Ser', 'AGC': 'Ser',
+    'AUG': 'Met',
+    'ACG': 'Thr',
+    'AAA': 'Lys', 'AAG': 'Lys',
+    'AGA': 'Arg', 'AGG': 'Arg',
+    'GUU': 'Val', 'GUC': 'Val', 'GUA': 'Val',
+    'GCU': 'Ala', 'GCC': 'Ala', 'GCA': 'Ala',
+    'GAU': 'Asp', 'GAC': 'Asp',
+    'GGU': 'Gly', 'GGC': 'Gly', 'GGA': 'Gly', 'GGG': 'Gly'
+}
    for i in range(0, len(seq),3) :
       souseq=seq[i]
       if i+2<len(seq) :
         souseq=souseq+seq[i+1]+seq[i+2]
       elif i+1<len(seq) :
         souseq=souseq+seq[i+1]
-      if souseq=="UUU" or  souseq=="UUC" :
-        Protein=Protein+'-'+'Phe'
-      if souseq=="UCU" or  souseq=="UCC" or  souseq== "UCA" or  souseq=="UCG" :
-        Protein=Protein+'-'+'Ser'        
-      if souseq=="UAU" or  souseq=="UAC":
-       Protein=Protein+'-'+'Tyr'        
-      if souseq=="UGG" : 
-       Protein=Protein+'-'+'Trp'        
-      if souseq=="UAA" or  souseq=="UAG" or  souseq=="UGA" : 
-       Protein=Protein+'-'+'Trp'        
+      if souseq in codon_to_protein:
+        Protein += '-' + codon_to_protein[souseq]     
 
    Protein=Protein[1:len(Protein)] 
    return Protein 
 
-def  matrice_profil(FASTA_format):
+def  matrice_profil(path):
   T_A=[]
   T_T=[]
   T_C=[]
   T_G=[]
-  for i in len(FASTA_format):
-    T_A.append(0)
-    T_T.append(0)
-    T_C.append(0)
-    T_G.append(0)
+  T_Array=[]
+  FastaArray=read_FASTA_strings(path)  
+  for j in range(len(FastaArray)):
+   T_Array.append('')
+   for i in range(len(FastaArray[j])):
+     if FastaArray[j][i]=='\n':
+        i=i+1
+        while i < len(FastaArray[1]) and FastaArray[1][i]!='\n' :
+         T_Array[j]=T_Array[j]+FastaArray[j][i]
+         i+=1
+  for i in range(len(T_Array[1])):
+   T_A.append(0)
+   T_T.append(0)
+   T_C.append(0)
+   T_G.append(0)
+   for j in T_Array:
+     if len(j)>1: 
+      if j[i]=='T':
+        T_T[i]+=1
+      if j[i]=='G':
+        T_G[i]+=1
+      if j[i]=='C':
+        T_C[i]+=1       
+      if j[i]=='A':
+        T_A[i]+=1 
+    
+  return [T_A,T_C,T_G,T_T]
 
-# UUU or UUC: Phenylalanine (Phe)
-# UCU, UCC, UCA, UCG: Serine (Ser)
-# UAU or UAC: Tyrosine (Tyr)
-# UGG: Tryptophan (Trp)
-       
-# UAA, UAG, UGA: Stop codons (end translation)
-# CUU, CUC, CUA, CUG: Leucine (Leu)
-# CCU, CCC, CCA, CCG: Proline (Pro)
-# CAU or CAC: Histidine (His)
-# CAA or CAG: Glutamine (Gln)
-# CGU, CGC, CGA, CGG: Arginine (Arg)
-# AUU, AUC, AUA: Isoleucine (Ile)
-# ACU, ACC, ACA, ACG: Threonine (Thr)
-# AAU or AAC: Asparagine (Asn)
-# AAA or AAG: Lysine (Lys)
-# AGU or AGC: Serine (Ser)
-# AGA or AGG: Arginine (Arg)
-# GUU, GUC, GUA, GUG: Valine (Val)
-# GCU, GCC, GCA, GCG: Alanine (Ala)
-# GAU or GAC: Aspartic Acid (Asp)
-# GAA or GAG: Glutamic Acid (Glu)
-# GGU, GGC, GGA, GGG: Glycine (Gly)
-# AUG: Methionine (Met) - Start codon
+f=matrice_profil("FastaForma.txt")
+print(f)

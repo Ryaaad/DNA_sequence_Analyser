@@ -13,6 +13,10 @@ def statusbar(stdscr):
     stdscr.addstr(height-1, len(statusbarstr), " " * (width - len(statusbarstr) - 1))
     stdscr.attroff(curses.color_pair(3))
 
+def read_FASTA_strings(filename):
+ with open(filename) as file:
+  return (file.read()).split('>')
+
 def ReadInput(stdscr,text):
   key=''
   input=''
