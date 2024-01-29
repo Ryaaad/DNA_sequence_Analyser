@@ -199,7 +199,16 @@ def MainMenu(stdscr):
     if key!='q':
      if keychosen==1 : 
         ADNseq=''
-        path=utils.ReadInput(stdscr,"Enter file path :")
+        while True:
+         try:
+          path=utils.ReadInput(stdscr,"Enter file path :")
+          f=open(path)
+         except FileNotFoundError:
+          stdscr.addstr(height-1, 1, 'File not found',curses.A_BOLD | curses.color_pair(4) | curses.A_BLINK)
+          stdscr.addstr(0, 1, '')
+          stdscr.refresh() 
+          break
+        
         ADNseq=Functions.ADNseq_From_File(path)
         FileMenu(stdscr,ADNseq=ADNseq)
      elif keychosen==2 :   
@@ -218,7 +227,23 @@ def MainMenu(stdscr):
         ADNseq=Functions.randomADN(int(number))
         NonFileMenu(stdscr,ADNseq)
      elif keychosen==3:
-        path=utils.ReadInput(stdscr,"Enter path of the File with Fasta Format :")
-        Matseq=Functions.ADNseq_From_File(path)
-        stdscr.addstr(f"{Matseq}")
+        while True  :  
+         try:
+          path = utils.ReadInput(stdscr, "Enter path of the File with Fasta Format :",1)
+          f = open(path)
+          break
+         except FileNotFoundError:
+          stdscr.addstr(height-1, 1, 'File not found',curses.A_BOLD | curses.color_pair(4) | curses.A_BLINK)
+          stdscr.addstr(0, 1, '')
+          stdscr.refresh() 
+        Matseq=Functions.matrice_profil(path)
+        stdscr.addstr(3,30,f"{Matseq[0][0]}",curses.A_BOLD)
+        stdscr.addstr(3,60,f"{Matseq[0][1]}",curses.A_BOLD)
+        stdscr.addstr(3,90,f"{Matseq[0][2]}",curses.A_BOLD)
+        stdscr.addstr(3,120,f"{Matseq[0][3]}",curses.A_BOLD)
+        for i in range(1,len(Matseq)):
+           for j in range(0,len(Matseq[1])):
+            stdscr.addstr(j+5,i*30+2,f"{Matseq[i][j]}",curses.A_BOLD)
+
+        stdscr.getch()
      stdscr.refresh()

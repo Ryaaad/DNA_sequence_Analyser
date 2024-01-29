@@ -17,7 +17,7 @@ def read_FASTA_strings(filename):
  with open(filename) as file:
   return (file.read()).split('>')
 
-def ReadInput(stdscr,text):
+def ReadInput(stdscr,text,pos=1):
   key=''
   input=''
   while key != '\n':
@@ -31,3 +31,4 @@ def ReadInput(stdscr,text):
    stdscr.clear()
    stdscr.refresh()
   return input
+                

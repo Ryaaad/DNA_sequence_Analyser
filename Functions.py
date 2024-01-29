@@ -210,7 +210,5 @@ def  matrice_profil(path):
       if j[i]=='A':
         T_A[i]+=1 
     
-  return [T_A,T_C,T_G,T_T]
-
-f=matrice_profil("FastaForma.txt")
-print(f)
+  t= [["Adénine", "Cytosine", "Guanine", "Thymine"],T_A,T_C,T_G,T_T]
+  return t
