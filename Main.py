@@ -14,15 +14,13 @@ def main(stdscr):
     curses.curs_set(0)
     stdscr.clear()
     stdscr.refresh()
-    ADNseq=''
-    ARNseq=''
-    
-    [ADNseq,ARNseq,Matrice]=MainMenu(stdscr, ADNseq,ARNseq)
+   
+    [ADNseq,ARNseq,Matrice,Protien]=MainMenu(stdscr)
     stdscr.refresh()
     keychosen=CreatingFileMenu(stdscr)
     if keychosen==1 : 
         if len(Matrice)<=0 :
-         text=f"ADN : {ADNseq} {'ARN : ' + ARNseq if len(ARNseq) > 0 else ''} "
+         text=f"ADN : {ADNseq} {'ARN : ' + ARNseq if len(ARNseq) > 0 else ''} {'Protien : ' + Protien if len(Protien) > 0 else ''} "
          save_to_file(text)
         else :
          text=f"{'Matrice Profil : ' + str(Matrice) if len(Matrice) >0 else '' } "

@@ -81,7 +81,7 @@ def FileMenu(stdscr,ADNseq,ARNseq):
             stdscr.addstr('La chaine motif est pas une chaine ADN')
      return ARNseq
 
-def NonFileMenu(stdscr,ADNseq,ARNseq):
+def NonFileMenu(stdscr,ADNseq,ARNseq,Protien):
     x = 1
     keychosen=1
     height, width = stdscr.getmaxyx()
@@ -116,7 +116,7 @@ def NonFileMenu(stdscr,ADNseq,ARNseq):
            stdscr.getch()
      if keychosen==2:
            ARNseq=Functions.Adn_to_Arn(ADNseq)   
-           ArnMenu(stdscr,ARNseq)
+           Protien=ArnMenu(stdscr,ARNseq,Protien)
      if keychosen==3:
            AdnC=Functions.Adn_complementary(ADNseq)
            stdscr.addstr(f'la chaine Complemantaire de : {ADNseq} est : {AdnC}')
@@ -134,8 +134,7 @@ def NonFileMenu(stdscr,ADNseq,ARNseq):
         MutatedADN=Functions.Adn_Mutation(ADNseq,int(number))
         stdscr.addstr(f"ADN :{ADNseq}")
         stdscr.addstr(2,1,f"New mutated :{MutatedADN}")
-        key=stdscr.getch()
-     
+        key=stdscr.getch()  
      if keychosen==7:
         key=''
         while key!='q' :
@@ -149,8 +148,8 @@ def NonFileMenu(stdscr,ADNseq,ARNseq):
             key='q'
           else :
             stdscr.addstr('La chaine motif est pas une chaine ADN')
-    return ARNseq
-def ArnMenu(stdscr,ArnSeq):
+    return [ARNseq,Protien]
+def ArnMenu(stdscr,ArnSeq,Protien):
     height, width = stdscr.getmaxyx()
     text="Opperation"
     col = (width - len(text)) // 2
@@ -171,7 +170,7 @@ def ArnMenu(stdscr,ArnSeq):
            stdscr.getch()
            stdscr.clear()
            stdscr.refresh()
-
+    return Protien
 def CreatingFileMenu(stdscr):
     height, width = stdscr.getmaxyx()
     text="Veux-tu enregistrer les résultats dans un Fichier ?"
@@ -197,9 +196,12 @@ def CreatingFileMenu(stdscr):
              
    
       
-def MainMenu(stdscr,ADNseq,ARNseq):
+def MainMenu(stdscr):
     x = 1
+    ARNseq=''
+    ADNseq=''
     keychosen=1
+    Protien=""     
     Matrice=[]
     height, width = stdscr.getmaxyx()
     text="Choisi l'opperation"
@@ -242,17 +244,25 @@ def MainMenu(stdscr,ADNseq,ARNseq):
         stdscr.addstr("Enter seq length : ")
         key = ''
         number=''
-        while key != '\n':
+        while True :
+         while key != '\n':
             key=stdscr.getkey()
             if key=="KEY_BACKSPACE":
                number=utils.deleteChar(number) 
-            if ord('0') <= ord(key) <= ord('9') : # check if the key is number with code ascii
-             number=number+key
+            number=number+key
             stdscr.addstr(key)
             stdscr.refresh()
-
+         try:
+          if isinstance(int(number), int):
+            break 
+         except (ValueError): 
+            stdscr.clear()
+            stdscr.addstr(1,1,"Enter a valide Number: ")
+            stdscr.refresh()
+            key = ''
+            number=''
         ADNseq=Functions.randomADN(int(number))
-        ARNseq=NonFileMenu(stdscr,ADNseq,ARNseq)
+        [ARNseq,Protien]=NonFileMenu(stdscr,ADNseq,ARNseq,Protien)
      elif keychosen==3:
         while True  :  
          try:
@@ -275,4 +285,4 @@ def MainMenu(stdscr,ADNseq,ARNseq):
             stdscr.addstr(j+5,i*30+2,f"{Matseq[i][j]}",curses.A_BOLD)
 
         stdscr.getch()
-    return [ADNseq,ARNseq,Matrice]
+    return [ADNseq,ARNseq,Matrice,Protien]

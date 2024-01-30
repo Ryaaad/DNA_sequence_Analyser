@@ -5,8 +5,8 @@ def deleteChar(var):
    var=var[0:len(var)-1]
  return var
 
-def statusbar(stdscr):
-    statusbarstr = "Press 'q' to exit | Press 'enter' to continu"
+def statusbar(stdscr,text="Press 'q' to exit | Press 'enter' to continu"):
+    statusbarstr = text
     height, width = stdscr.getmaxyx()
     stdscr.attron(curses.color_pair(3))
     stdscr.addstr(height-1, 0, statusbarstr)
@@ -44,7 +44,7 @@ def save_matrix_to_file(matrix, filename="resultat.txt"):
     try:
         with open(filename, "w") as file:
             for row in matrix:
-                file.write(" ".join(map(str, row)) + "\n")
+                file.write(" ".join(map(str, row)))
         print(f"Matrix saved to {filename} successfully.")
     except Exception as e:
         print(f"Error saving matrix to {filename}: {e}")
